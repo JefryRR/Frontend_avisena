@@ -1,0 +1,173 @@
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="col-2">
+            <h4 class="card-title">Aislamientos</h4>
+          </div>
+          <div class="mt-3 ms-auto page-utilities">
+            <div class="row align-items-center">
+              <div class="col-md-3">
+                <div class="btn-group w-100">
+                  <button class="btn app-btn-secondary dropdown-toggle" type="button" id="export-btn"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-file-export me-1"></i> Exportar
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="export-btn">
+                    <li><a class="dropdown-item export-format" href="#" data-format="csv">Exportar CSV</a></li>
+                    <li><a class="dropdown-item export-format" href="#" data-format="excel">Exportar Excel</a></li>
+                    <li><a class="dropdown-item export-format" href="#" data-format="pdf">Exportar Pdf</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-search"></i></span>
+                  <input type="text" id="search-isolation" class="form-control" placeholder="Buscar aislamiento">
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="d-flex gap-3 justify-content-end">
+                  <button class="btn btn-danger" id="btn_clear_filters" style="background-color: rgb(221, 12, 12);">
+                    <i class="fas fa-times-circle me-1"></i>Limpiar
+                  </button>
+                  <button class="btn btn-primary" id="btn_open_date_filter">
+                    <i class="fas fa-filter me-1"></i>Filtrar
+                  </button>
+                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    <i class="fas fa-plus me-1"></i>Agregar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="table-responsive mt-4">
+          <table class="table mb-0 text-nowrap varient-table align-middle fs-5">
+            <thead>
+              <tr>
+                <th scope="col" class="px-0 text-muted">incidente gallina N.</th>
+                <th scope="col" class="px-0 text-muted">fecha y hora</th>
+                <th scope="col" class="px-0 text-muted">Nombre del galpón</th>
+                <th scope="col" class="px-0 text-muted text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="isolations-table-body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> <!-- end row -->
+<div id="pagination" class="text-center"></div>
+
+
+<div class="modal fade" id="edit-isolation-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Editar aislamiento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-isolation-form">
+          <input type="hidden" id="edit-isolation-id">
+
+          <div class="mb-3">
+            <label for="edit-idIncidentGallina" class="form-label">Incidente gallina N.</label>
+            <input type="number" class="form-control" id="edit-idIncidentGallina">
+          </div>
+          <div class="mb-3">
+            <label for="edit_id_galpon" class="form-label">Galpón</label>
+            <select id="edit_id_galpon" class="form-select" required></select>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Crear aislamiento</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="create-isolation-form">
+          <div class="mb-3">
+            <label for="create-id_incident_gallina" class="form-label">Incidente gallina N.</label>
+            <input type="text" class="form-control" id="create-id_incident_gallina" required>
+          </div>
+          <div class="mb-3">
+            <label for="create_id_galpon" class="form-label">Galpón</label>
+            <select id="create_id_galpon" class="form-select" required></select>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Crear aislamiento</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Filtro por Fechas -->
+<div class="modal fade" id="filterDateModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">Filtrar por fecha</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <label>Fecha inicio:</label>
+        <input type="date" id="fecha-inicio" class="form-control">
+
+        <label class="mt-3">Fecha fin:</label>
+        <input type="date" id="fecha-fin" class="form-control">
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button class="btn btn-success" id="btn-apply-date-filter">Aplicar filtros</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<style>
+  /* Limita la altura del menú desplegable y activa el scroll */
+  .select2-dropdown.custom-dropdown .select2-results__options {
+    max-height: 100px !important;
+    overflow-y: auto !important;
+  }
+
+  /* Corrige posibles recortes dentro del modal */
+  .modal .select2-container {
+    width: 100% !important;
+  }
+</style>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
