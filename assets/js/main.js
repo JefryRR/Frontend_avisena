@@ -37,6 +37,11 @@ const loadContent = async (page) => {
         .then(isolationModule => isolationModule.init());  // llama la función modulo en isolations.js
     }
 
+    if (page === 'rescue') {
+      import('../pages/rescue.js')
+        .then(isolationModule => isolationModule.init());  // llama la función modulo en isolations.js
+    }
+
     if (page === 'tipos_gallinas') {
       import('../pages/tipos_gallinas.js')
         .then(tipo_gallinasModule => tipo_gallinasModule.init());

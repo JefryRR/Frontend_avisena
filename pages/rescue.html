@@ -1,0 +1,161 @@
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div>
+                    <h4 class="card-title">Salvamento</h4>
+                </div>
+                <div class="d-md-flex align-items-center mt-4">
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <label for="fecha-inicio" class="form-label">Fecha Inicio</label>
+                            <input type="date" class="form-control" id="fecha-inicio">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="fecha-fin" class="form-label">Fecha Fin</label>
+                            <input type="date" class="form-control" id="fecha-fin">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="button" class="btn btn-primary me-2" id="btn-filtrar">
+                                <i class="fas fa-filter"></i> Filtrar
+                            </button>
+                            <button type="button" class="btn btn-secondary" id="btn-limpiar">
+                                <i class="fas fa-times"></i> Limpiar
+                            </button>
+                        </div>
+                        
+                    </div>
+                    <div class="ms-auto mt-3 mt-md-0">
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#createRescueModal">
+                            Agregar nuevo salvamento
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive mt-4">
+                    <table class="table mb-0 text-nowrap varient-table align-middle">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="px-0 text-muted">Nombre Galpón</th>
+                                <th scope="col" class="px-0 text-muted">Fecha</th>
+                                <th scope="col" class="px-0 text-muted">Tipo Gallina</th>
+                                <th scope="col" class="px-0 text-muted">Cantidad Gallinas</th>
+                                <th scope="col" class="px-0 text-muted text-end">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rescue-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> <!-- end row -->
+
+<!-- Filtros de fecha y paginación -->
+<div class="card mt-4">
+    <div class="card-body">
+        <div class="col-md-3 d-flex align-items-end justify-content-end">
+            <div class="input-group" style="width: auto;">
+                <label class="input-group-text" for="page-size">Mostrar</label>
+                <select class="form-select" id="page-size" style="width: auto;">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+        </div>
+        <!-- Paginador -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mb-0" id="pagination">
+                <!-- El paginador se generará dinámicamente -->
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Modal Editar Salvamento -->
+<div class="modal fade" id="editRescueModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Rescate</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit-rescue-form">
+                    <input type="hidden" id="edit-rescue-id">
+
+                    <div class="mb-3">
+                        <label for="edit-id_galpon" class="form-label">Galpón</label>
+                        <select class="form-select" id="edit-id_galpon" required>
+                            <option value="">Seleccionar Galpón</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-fecha" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="edit-fecha" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-id_tipo_gallina" class="form-label">Tipo de Gallina</label>
+                        <select class="form-select" id="edit-id_tipo_gallina" required>
+                            <option value="">Seleccionar Tipo de Gallina</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-cantidad_gallinas" class="form-label">Cantidad Gallinas</label>
+                        <input type="number" class="form-control" id="edit-cantidad_gallinas" required>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crear Salvamento -->
+<div class="modal fade" id="createRescueModal" tabindex="-1" aria-labelledby="createRescueModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="createRescueModalLabel">Crear Rescate</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-rescue-form">
+                    <div class="mb-3">
+                        <label for="create-id_galpon" class="form-label">Galpón</label>
+                        <select class="form-select" id="create-id_galpon" required>
+                            <option value="">Seleccionar Galpón</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="create-fecha" class="form-label">Fecha</label>
+                        <input type="date" class="form-control" id="create-fecha" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="create-id_tipo_gallina" class="form-label">Tipo de Gallina</label>
+                        <select class="form-select" id="create-id_tipo_gallina" required>
+                            <option value="">Seleccionar Tipo de Gallina</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="create-cantidad_gallinas" class="form-label">Cantidad Gallinas</label>
+                        <input type="number" class="form-control" id="create-cantidad_gallinas" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Crear Rescate</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
