@@ -32,6 +32,16 @@ const loadContent = async (page) => {
         .then(incident_chickenModule => incident_chickenModule.init());  // llama la función modulo en isolations.js
     }
 
+    if (page === 'chickens') {
+      import('../pages/chickens.js')
+        .then(isolationModule => isolationModule.init());  // llama la función modulo en isolations.js
+    }
+
+    if (page === 'tipos_gallinas') {
+      import('../pages/tipos_gallinas.js')
+        .then(tipo_gallinasModule => tipo_gallinasModule.init());
+    }
+
   } catch (error) {
     console.error("¡ERROR! Algo falló dentro de loadContent:", error);
     mainContent.innerHTML = `<h3 class="text-center text-danger p-5">No se pudo cargar el contenido. Revisa la consola (F12).</h3>`;

@@ -14,7 +14,7 @@ export const userService = {
         //         alert("No tiene permisos");
         //     };
         // };
-        const endpoint = `/users/all_except_admins`;
+        const endpoint = `/users/all-except-admins`;
         
         // La lógica es mucho más simple ahora, solo llamamos a nuestro cliente central.
         return request(endpoint);
