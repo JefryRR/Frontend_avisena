@@ -2,11 +2,8 @@ import { typeChickenService } from '../js/tipos_gallinas.service.js';
 
 let modalInstance = null; // Guardará la instancia del modal de Bootstrap
 let createModalInstance = null;
-let originalMail = null;
 
 function createTypeChickenRow(typeChicken) {
-  const typeChickenID = typeChicken.id_tipo_gallinas;
-
   return `
     <tr>
       <td class="px-0 text-center">${typeChicken.id_tipo_gallinas}</td>

@@ -7,7 +7,6 @@ export const typeChickenService = {
         if (!userString) {
             return Promise.reject(new Error('Información de usuario no encontrada.'));
         }
-        const user = JSON.parse(userString);
         
         const endpoint = `/type_chicken/all-type-chickens`;
         
