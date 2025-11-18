@@ -27,6 +27,10 @@ const loadContent = async (page) => {
       import('../pages/isolations.js')
         .then(isolationModule => isolationModule.init());  // llama la función modulo en isolations.js
     }
+    if (page === 'incidentes_gallina') {
+      import('../pages/incident_chicken.js')
+        .then(incident_chickenModule => incident_chickenModule.init());  // llama la función modulo en isolations.js
+    }
 
   } catch (error) {
     console.error("¡ERROR! Algo falló dentro de loadContent:", error);
