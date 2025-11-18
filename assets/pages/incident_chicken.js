@@ -57,7 +57,6 @@ async function handleStatusSwitch(event) {
 
 function createIncident_chickenRow(incident) {
   const incident_chickenId = incident.id_inc_gallina;
-  console.log("🔍 ID capturado:", incident_chickenId);
 
   const fecha = new Date(incident.fecha_hora);
   const fechaFormateada = fecha.toLocaleString('es-ES', {
