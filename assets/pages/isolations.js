@@ -34,6 +34,7 @@ function createIsolationRow(isolation) {
   `;
 }
 
+//____________________formato_para_exportar_por_fechas______________________________
 function formatDateForAPI(dateStr) {
   if (!dateStr) return "";
   const date = new Date(dateStr);
@@ -43,6 +44,7 @@ function formatDateForAPI(dateStr) {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+//______________________________paginación para todos los datos y filtrados_____________
 
 async function fetchIsolations(page = 1, page_size = 10, fechaInicio = "", fechaFin = "") {
   const token = localStorage.getItem('access_token');
@@ -84,11 +86,85 @@ async function fetchIsolations(page = 1, page_size = 10, fechaInicio = "", fecha
   }
 }
 
-// ... (el resto de las funciones se mantienen igual hasta la función filtrarAislamientos)
+// Modificar la función init para que pase correctamente los filtros a la paginación
+function renderPagination(total_pages, currentPage = 1) {
+  const container = document.querySelector("#pagination");
+  if (!container) return;
 
+  container.innerHTML = "";
+  
+  const anterior = document.createElement("button");
+  anterior.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'mx-1', 'border', 'border-success', 'my-2');
+  anterior.textContent = "<";
+  anterior.addEventListener("click", () => {
+    const prevPage = currentPage === 1 ? total_pages : currentPage - 1;
+    init(prevPage, 10, activeFechaInicio, activeFechaFin);
+  });
+  container.appendChild(anterior);
+
+  const maxVisible = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+  let endPage = Math.min(total_pages, startPage + maxVisible - 1);
+
+  if (endPage - startPage + 1 < maxVisible) {
+    startPage = Math.max(1, endPage - maxVisible + 1);
+  }
+
+  if (startPage > 1) {
+    const first = createPageButton(1, currentPage);
+    container.appendChild(first);
+    if (startPage > 2) {
+      container.appendChild(createDots());
+    }
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    container.appendChild(createPageButton(i, currentPage));
+  }
+
+  if (endPage < total_pages) {
+    if (endPage < total_pages - 1) {
+      container.appendChild(createDots());
+    }
+    const last = createPageButton(total_pages, currentPage);
+    container.appendChild(last);
+  }
+  
+  const next = document.createElement("button");
+  next.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'mx-1', 'border', 'border-success', 'my-2');
+  next.textContent = ">";
+  next.addEventListener("click", () => {
+    const nextPage = currentPage === total_pages ? 1 : currentPage + 1;
+    init(nextPage, 10, activeFechaInicio, activeFechaFin);
+  });
+  container.appendChild(next);
+}
+
+function createPageButton(page, currentPage) {
+  const btn = document.createElement("button");
+  btn.textContent = page;
+  btn.disabled = page === currentPage;
+  btn.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'mx-1', 'border', 'border-success', 'my-2');
+  btn.addEventListener("click", () => init(page, 10, activeFechaInicio, activeFechaFin));
+  return btn;
+}
+
+function createDots() {
+  const span = document.createElement("span");
+  span.textContent = "...";
+  span.classList.add('mx-2');
+  return span;
+}
+
+//______________________ para filtrar por fechas_______________________________________
 function filtrarAislamientos(fechaInicio, fechaFin) {
   if (!fechaInicio || !fechaFin) {
-    alert("Por favor selecciona ambas fechas.");
+    Swal.fire({
+      icon: 'info',
+      title: 'Error',
+      text: 'Debe seleccionar ambas fechas',
+      confirmButtonColor: 'rgba(51, 136, 221, 1)'
+    });
     return;
   }
 
@@ -100,7 +176,7 @@ function filtrarAislamientos(fechaInicio, fechaFin) {
   init(1, 10);
 }
 
-// Botón para abrir modal
+// Botón para abrir modal de filtro
 document.getElementById("btn_open_date_filter").addEventListener("click", () => {
   filterModal.show();
 });
@@ -115,6 +191,9 @@ document.getElementById("btn-apply-date-filter").addEventListener("click", () =>
   // Cerrar modal
   filterModal.hide();
 });
+
+
+//_____________selects para que cargen los nombres de la tabla galpon del create y edit_______________
 
 async function loadGalponesSelectCreate() {
   const select = document.getElementById('create_id_galpon');
@@ -172,6 +251,9 @@ async function loadGalponesSelectCreate() {
   }
 }
 
+const createModal = document.getElementById('exampleModal');
+createModal.addEventListener('show.bs.modal', loadGalponesSelectCreate);
+
 async function loadGalponesSelectEdit(selectedId) {
   const select = document.getElementById('edit_id_galpon');
   select.innerHTML = '<option value="">Cargando galpones...</option>';
@@ -199,6 +281,7 @@ async function loadGalponesSelectEdit(selectedId) {
   }
 }
 
+//___________para abrir el modal de edit_________________________________________
 async function openEditModal(id_aislamiento) {
   const modalElement = document.getElementById('edit-isolation-modal');
   if (!modalInstance) {
@@ -215,7 +298,7 @@ async function openEditModal(id_aislamiento) {
     
     modalInstance.show();
   } catch (error) {
-     Swal.fire({
+      Swal.fire({
       icon: 'error',
       title: 'Error',
       text: 'No se pudieron cargar los datos del aislamiento.',
@@ -223,6 +306,16 @@ async function openEditModal(id_aislamiento) {
     });
   };
 };
+
+async function handleTableClick(event) {
+  // Manejador para el botón de editar
+  const editButton = event.target.closest('.btn-edit-isolation');
+  if (editButton) {
+    const idAislamiento = editButton.dataset.isolationId;
+    openEditModal(idAislamiento);
+    return;
+  }
+}
 
 // --- MANEJADORES DE EVENTOS ---
 
@@ -243,19 +336,9 @@ async function handleUpdateSubmit(event) {
     Swal.fire({
       icon: 'error',
       title: 'Error',
-      text: 'No se pudieron cargar los datos del aislamiento.',
+      text: 'No se pudo actualizar del aislamiento.',
       confirmButtonColor: '#d33'
     });
-  }
-}
-
-async function handleTableClick(event) {
-  // Manejador para el botón de editar
-  const editButton = event.target.closest('.btn-edit-isolation');
-  if (editButton) {
-    const idAislamiento = editButton.dataset.isolationId;
-    openEditModal(idAislamiento);
-    return;
   }
 }
 
@@ -282,6 +365,7 @@ async function handleCreateSubmit(event) {
       text: 'Aislamiento creado correctamente.',
       confirmButtonColor: '#28a745'
     });
+
     init();
   } catch (error) {
     Swal.fire({
@@ -290,77 +374,43 @@ async function handleCreateSubmit(event) {
       text: 'Error al crear el aislamiento',
       confirmButtonColor: '#d33'
     });
+
   }
 }
 
-// Modificar la función init para que pase correctamente los filtros a la paginación
-function renderPagination(total_pages, currentPage = 1) {
-  const container = document.querySelector("#pagination");
-  if (!container) return;
+//____________________________________buscador inteligente____________________________________
+const BuscarAislamiento = document.getElementById('search-isolation');
 
-  container.innerHTML = "";
-  
-  const anterior = document.createElement("button");
-  anterior.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'mx-1', 'border', 'border-success', 'my-2');
-  anterior.textContent = "<";
-  anterior.addEventListener("click", () => {
-    const prevPage = currentPage === 1 ? total_pages : currentPage - 1;
-    init(prevPage, 10, activeFechaInicio, activeFechaFin);
+BuscarAislamiento.addEventListener('input', () => {
+  const filter = BuscarAislamiento.value.toLowerCase();
+  const tableBody = document.getElementById('isolations-table-body');
+  const rows = tableBody.querySelectorAll('tr');
+
+  rows.forEach(row => {
+    // Obtener celdas relevantes: ID, fecha, galpón
+    const idCell = row.cells[0]?.textContent.toLowerCase() || '';
+    const fechaCell = row.cells[1]?.textContent.toLowerCase() || '';
+    const galponCell = row.cells[2]?.textContent.toLowerCase() || '';
+
+    // Mostrar si alguna celda contiene el texto buscado
+    const match = idCell.includes(filter) || fechaCell.includes(filter) || galponCell.includes(filter);
+    row.style.display = match ? '' : 'none';
   });
-  container.appendChild(anterior);
+});
+//______________________________________________________________________________________________
 
-  const maxVisible = 5;
-  let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-  let endPage = Math.min(total_pages, startPage + maxVisible - 1);
-
-  if (endPage - startPage + 1 < maxVisible) {
-    startPage = Math.max(1, endPage - maxVisible + 1);
-  }
-
-  if (startPage > 1) {
-    const first = createPageButton(1, currentPage);
-    container.appendChild(first);
-    if (startPage > 2) {
-      container.appendChild(createDots());
-    }
-  }
-
-  for (let i = startPage; i <= endPage; i++) {
-    container.appendChild(createPageButton(i, currentPage));
-  }
-
-  if (endPage < total_pages) {
-    if (endPage < total_pages - 1) {
-      container.appendChild(createDots());
-    }
-    const last = createPageButton(total_pages, currentPage);
-    container.appendChild(last);
-  }
-  
-  const next = document.createElement("button");
-  next.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'mx-1', 'border', 'border-success', 'my-2');
-  next.textContent = ">";
-  next.addEventListener("click", () => {
-    const nextPage = currentPage === total_pages ? 1 : currentPage + 1;
-    init(nextPage, 10, activeFechaInicio, activeFechaFin);
-  });
-  container.appendChild(next);
-}
-function createPageButton(page, currentPage) {
-  const btn = document.createElement("button");
-  btn.textContent = page;
-  btn.disabled = page === currentPage;
-  btn.classList.add('btn', 'btn-sm', 'btn-outline-primary', 'mx-1', 'border', 'border-success', 'my-2');
-  btn.addEventListener("click", () => init(page, 10, activeFechaInicio, activeFechaFin));
-  return btn;
+//_______________________________ limpiador de filtros__________________________________________
+function limpiarFiltros() {
+  activeFechaInicio = "";
+  activeFechaFin = "";
+  document.getElementById("fecha-inicio").value = "";
+  document.getElementById("fecha-fin").value = "";
+  init(1, 10);
 }
 
-function createDots() {
-  const span = document.createElement("span");
-  span.textContent = "...";
-  span.classList.add('mx-2');
-  return span;
-}
+const btnClear = document.getElementById('btn_clear_filters');
+btnClear.addEventListener('click', limpiarFiltros);
+//_____________________________________________________________________________________________
 
 async function init(page = 1, page_size = 10, fechaInicio = activeFechaInicio, fechaFin = activeFechaFin) {
   activeFechaInicio = fechaInicio;
@@ -413,47 +463,10 @@ async function init(page = 1, page_size = 10, fechaInicio = activeFechaInicio, f
   }
 }
 
-const BuscarAislamiento = document.getElementById('search-isolation');
-
-BuscarAislamiento.addEventListener('input', () => {
-  const filter = BuscarAislamiento.value.toLowerCase();
-  const tableBody = document.getElementById('isolations-table-body');
-  const rows = tableBody.querySelectorAll('tr');
-
-  rows.forEach(row => {
-    // Obtener celdas relevantes: ID, fecha, galpón
-    const idCell = row.cells[0]?.textContent.toLowerCase() || '';
-    const fechaCell = row.cells[1]?.textContent.toLowerCase() || '';
-    const galponCell = row.cells[2]?.textContent.toLowerCase() || '';
-
-    // Mostrar si alguna celda contiene el texto buscado
-    const match = idCell.includes(filter) || fechaCell.includes(filter) || galponCell.includes(filter);
-    row.style.display = match ? '' : 'none';
-  });
-});
-
-function limpiarFiltros() {
-  activeFechaInicio = "";
-  activeFechaFin = "";
-  document.getElementById("fecha-inicio").value = "";
-  document.getElementById("fecha-fin").value = "";
-  init(1, 10);
-}
-
-const btnClear = document.getElementById('btn_clear_filters');
-btnClear.addEventListener('click', limpiarFiltros);
-
-const createModal = document.getElementById('exampleModal');
-createModal.addEventListener('show.bs.modal', loadGalponesSelectCreate);
-
 // Modal de filtro de fechas
 const filterModalEl = document.getElementById('filterDateModal');
 const filterModal = new bootstrap.Modal(filterModalEl);
 
-// Botón para abrir modal
-document.getElementById("btn_open_date_filter").addEventListener("click", () => {
-  filterModal.show();
-});
 
 // Botón para aplicar filtro
 document.getElementById("btn-apply-date-filter").addEventListener("click", () => {
@@ -462,11 +475,10 @@ document.getElementById("btn-apply-date-filter").addEventListener("click", () =>
 
   filtrarAislamientos(fechaInicio, fechaFin);
 
-  // Cerrar modal
   filterModal.hide();
 });
-
-
+  
+//_____________________para exportar archivos excel, CSV, pdf_______________________________________
 function convertToCSV(rows, columns) {
   const escapeCell = (val) => {
     if (val === null || val === undefined) return "";
@@ -549,8 +561,6 @@ function loadScript(src) {
     document.body.appendChild(script);
   });
 }
-
-
 
 function exportToCSV(data, filename = "aislamientos.csv") {
   const columns = [
