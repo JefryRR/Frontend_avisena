@@ -33,7 +33,7 @@ function createChickenRow(chicken) {
             <td class="px-0">${chicken.raza}</td>
             <td class="px-0">${chicken.cantidad_gallinas} gallinas</td>
             <td class="px-0 text-end">
-                <button class="btn btn-sm btn-info btn-edit-chicken" data-chicken-id="${chickenId}">
+                <button class="btn btn-sm btn-success btn-edit-chicken" data-chicken-id="${chickenId}">
                     <i class="fa-regular fa-pen-to-square"></i>
                 </button>
                 <button class="btn btn-sm btn-danger btn-delete-chicken" data-chicken-id="${chickenId}">
