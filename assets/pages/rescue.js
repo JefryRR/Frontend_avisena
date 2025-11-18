@@ -456,7 +456,7 @@ async function fetchWithDates(page, size) {
     const endpoint = `/rescue/all-pag-by-date?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}&page=${page}&page_size=${size}`;
     const token = localStorage.getItem('access_token');
     
-    const response = await fetch(`https://avisena-yzq3.onrender.com${endpoint}`, {
+    const response = await fetch(`https://proyecto-sena-oatr.onrender.com${endpoint}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -474,7 +474,7 @@ async function fetchWithoutDates(page, size) {
     const endpoint = `/rescue/all-pag?page=${page}&page_size=${size}`;
     const token = localStorage.getItem('access_token');
     
-    const response = await fetch(`https://avisena-yzq3.onrender.com${endpoint}`, {
+    const response = await fetch(`https://proyecto-sena-oatr.onrender.com${endpoint}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
