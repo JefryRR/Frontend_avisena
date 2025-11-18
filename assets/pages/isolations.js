@@ -215,7 +215,12 @@ async function openEditModal(id_aislamiento) {
     
     modalInstance.show();
   } catch (error) {
-    alert('No se pudieron cargar los datos del aislamiento.');
+     Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudieron cargar los datos del aislamiento.',
+      confirmButtonColor: '#d33'
+    });
   };
 };
 
@@ -235,7 +240,12 @@ async function handleUpdateSubmit(event) {
     modalInstance.hide();
     init(); // Recargamos la tabla para ver los cambios
   } catch (error) {
-    alert('No se pudo actualizar el aislamiento.');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'No se pudieron cargar los datos del aislamiento.',
+      confirmButtonColor: '#d33'
+    });
   }
 }
 
@@ -266,10 +276,20 @@ async function handleCreateSubmit(event) {
     await isolationService.createIsolation(newIsolationData);
     if (createModalInstance) createModalInstance.hide();
     document.getElementById('create-isolation-form').reset();
-    alert('Aislamiento creado exitosamente.');
+    Swal.fire({
+      icon: 'success',
+      title: '¡Guardado!',
+      text: 'Aislamiento creado correctamente.',
+      confirmButtonColor: '#28a745'
+    });
     init();
   } catch (error) {
-    alert('No se pudo crear el aislamiento.');
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Error al crear el aislamiento',
+      confirmButtonColor: '#d33'
+    });
   }
 }
 
