@@ -1,0 +1,97 @@
+<!--  Row 1 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+        <div class="card-body">
+            <div class="d-md-flex align-items-center">
+            <div>
+                <h4 class="card-title">Tipos de gallinas</h4>
+                <p class="card-subtitle">
+                Modulo de tipo de gallinas...
+                </p>
+            </div>
+            <div class="ms-auto mt-3 mt-md-0">
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-tipo-gallina-modal">
+                  +Agregar
+                </button>
+            </div>
+            </div>
+            <div class="table-responsive mt-4">
+            <table class="table mb-0 text-nowrap varient-table align-middle fs-5">
+                <thead>
+                <tr>
+                    <th scope="col" class="px-0 text-muted text-center">ID</th>
+                    <th scope="col" class="px-0 text-muted text-center">Raza</th>
+                    <th scope="col" class="px-0 text-muted text-center">Descripción</th>
+                    <th scope="col" class="px-0 text-muted text-center">Acciones</th>
+                </tr>
+                </thead>
+                <tbody id="tipo-gallina-table-body">
+                </tbody>
+            </table>
+            </div>
+        </div>
+        </div>
+    </div>
+</div> <!-- end row -->
+
+<!-- Modal Crear -->
+<div class="modal fade" id="create-tipo-gallina-modal" tabindex="-1" aria-labelledby="create-tipo-gallina-title" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="create-tipo-gallina-title">Crear tipo de gallina</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="create-tipo-gallina-form">
+          <div class="mb-3">
+            <label for="create-raza" class="form-label">Raza</label>
+            <input type="text" class="form-control" id="create-raza" required>
+          </div>
+          <div class="mb-3">
+            <label for="create-descripcion" class="form-label">Descripción</label>
+            <input type="text" class="form-control" id="create-descripcion" required>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Crear tipo de gallina</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Editar -->
+<div class="modal fade" id="edit-tipo-gallina-modal" tabindex="-1" aria-labelledby="edit-tipo-gallina-title" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="edit-tipo-gallina-title">Editar tipo de gallina</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="edit-tipo-gallina-form">
+          <input type="hidden" id="edit-tipo-gallina-id">
+
+          <div class="mb-3">
+            <label for="edit-raza" class="form-label">Raza</label>
+            <input type="text" class="form-control" id="edit-raza" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit-descripcion" class="form-label">Descripción</label>
+            <input type="text" class="form-control" id="edit-descripcion" required>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
