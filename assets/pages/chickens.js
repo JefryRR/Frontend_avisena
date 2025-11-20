@@ -32,13 +32,15 @@ function createChickenRow(chicken) {
             <td class="px-0">${fechaFormateada}</td>
             <td class="px-0">${chicken.raza}</td>
             <td class="px-0">${chicken.cantidad_gallinas} gallinas</td>
-            <td class="px-0 text-end">
-                <button class="btn btn-sm btn-success btn-edit-chicken" data-chicken-id="${chickenId}">
-                    <i class="fa-regular fa-pen-to-square"></i>
-                </button>
-                <button class="btn btn-sm btn-danger btn-delete-chicken" data-chicken-id="${chickenId}">
-                    <i class="fa-regular fa-trash-can"></i>
-                </button>
+            <td class="text-end">
+                <div class="d-flex justify-content-end gap-2">
+                    <button class="btn btn-sm btn-success btn-edit-chicken" aria-label="Editar" title="Editar" data-chicken-id="${chickenId}">
+                        <i class="fa fa-pen me-0"></i>
+                    </button>
+                    <button class="btn btn-sm btn-secondary btn-delete-chicken" aria-label="Eliminar" title="Eliminar" data-chicken-id="${chickenId}">
+                        <i class="fa fa-trash me-0"></i>
+                    </button>
+                </div>
             </td>
         </tr>
     `;
@@ -129,7 +131,7 @@ async function cargarSelectFilterGalpones() {
         `).join('');
 
         if (selectFilter) {
-            selectFilter.innerHTML = `<option value="" selected>Todos los galpones</option>${options}`;
+            selectFilter.innerHTML = `<option value="" selected>Todos</option>${options}`;
         }
 
     } catch (error) {
@@ -192,35 +194,11 @@ async function handleUpdateSubmit(event) {
     } catch (error) {
         console.error(`Error al actualizar el registro ${chickenId}:`, error);
 
-        let msg = error?.message || error?.response?.data?.message || "Error desconocido";
-
-        switch (true) {
-            case msg.includes("cantidad debe ser mayor a cero"):
-            case msg.includes("cantidad_gallinas debe ser mayor a cero"):
-                Swal.fire({
-                    icon: "warning",
-                    title: "Cantidad inválida",
-                    text: "La cantidad ingresada debe ser mayor a 0.",
-                });
-                break;
-
-            case msg.includes("excede la capacidad"):
-            case msg.includes("capacidad del galpón"):
-                Swal.fire({
-                    icon: "error",
-                    title: "Capacidad excedida",
-                    text: "La cantidad ingresada supera la capacidad del galpón.",
-                });
-                break;
-
-            default:
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: msg,
-                });
-                break;
-        }
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "No se pudo actualizar el registro..",
+        });
     }
 }
 
@@ -307,35 +285,11 @@ async function handleCreateSubmit(event) {
     } catch (error) {
         console.error('Error al crear el registro:', error);
         
-        let msg = error?.message || error?.response?.data?.message || "No se pudo crear el registro.";
-
-        switch (true) {
-            case msg.includes("cantidad debe ser mayor a cero"):
-            case msg.includes("cantidad_gallinas debe ser mayor a cero"):
-                Swal.fire({
-                    icon: "warning",
-                    title: "Cantidad inválida",
-                    text: "La cantidad debe ser mayor a 0.",
-                });
-                break;
-
-            case msg.includes("excede la capacidad"):
-            case msg.includes("capacidad del galpón"):
-                Swal.fire({
-                    icon: "error",
-                    title: "Capacidad excedida",
-                    text: "La cantidad supera la capacidad del galpón.",
-                });
-                break;
-
-            default:
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: msg,
-                });
-                break;
-        }
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "No se pudo crear el registro.",
+        });
     }
 }
 
