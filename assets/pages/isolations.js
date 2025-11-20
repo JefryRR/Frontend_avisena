@@ -27,8 +27,8 @@ function createIsolationRow(isolation) {
       </td>
       <td class="px-0">${fechaFormateada}</td>
       <td class="px-0">${isolation.nombre}</td>
-      <td class="px-0 text-end">
-          <button class="btn btn-sm btn-success btn-edit-isolation" data-isolation-id="${isolationId}"><i class="fa-regular fa-pen-to-square"></i></button>
+      <td class="text-end justify-content-end gap-2">
+          <button class="btn btn-sm btn-success btn-edit-isolation" data-isolation-id="${isolationId}" aria-label="Editar"><i class="fa-regular fa-pen-to-square me-0"></i></button>
       </td>
     </tr>
   `;
@@ -176,11 +176,6 @@ function filtrarAislamientos(fechaInicio, fechaFin) {
   init(1, 10);
 }
 
-// Botón para abrir modal de filtro
-document.getElementById("btn_open_date_filter").addEventListener("click", () => {
-  filterModal.show();
-});
-
 // Botón para aplicar filtro
 document.getElementById("btn-apply-date-filter").addEventListener("click", () => {
   const fechaInicio = document.getElementById("fecha-inicio").value;
@@ -188,8 +183,6 @@ document.getElementById("btn-apply-date-filter").addEventListener("click", () =>
 
   filtrarAislamientos(fechaInicio, fechaFin);
 
-  // Cerrar modal
-  filterModal.hide();
 });
 
 
@@ -318,6 +311,9 @@ async function handleTableClick(event) {
 }
 
 // --- MANEJADORES DE EVENTOS ---
+const exampleModalEl = document.getElementById('exampleModal');
+const exampleModalInstance = bootstrap.Modal.getOrCreateInstance(exampleModalEl);
+
 
 async function handleUpdateSubmit(event) {
   event.preventDefault();
@@ -357,16 +353,30 @@ async function handleCreateSubmit(event) {
 
   try {
     await isolationService.createIsolation(newIsolationData);
-    if (createModalInstance) createModalInstance.hide();
-    document.getElementById('create-isolation-form').reset();
-    Swal.fire({
-      icon: 'success',
-      title: '¡Guardado!',
-      text: 'Aislamiento creado correctamente.',
-      confirmButtonColor: '#28a745'
+
+    // Cerrar modal ANTES, pero sin mostrar SweetAlert todavía
+    exampleModalInstance.hide();
+
+    // Esperar a que Bootstrap termine de cerrar el modal
+    exampleModalEl.addEventListener('hidden.bs.modal', function handler() {
+      // remover el listener (muy importante para evitar ejecuciones duplicadas)
+      exampleModalEl.removeEventListener('hidden.bs.modal', handler);
+
+      // resetear formulario
+      document.getElementById('create-isolation-form').reset();
+
+      // mostrar alerta
+      Swal.fire({
+        icon: 'success',
+        title: '¡Guardado!',
+        text: 'Aislamiento creado correctamente.',
+        confirmButtonColor: '#28a745'
+      });
+
+      // recargar datos
+      init();
     });
 
-    init();
   } catch (error) {
     Swal.fire({
       icon: 'error',
@@ -374,9 +384,9 @@ async function handleCreateSubmit(event) {
       text: 'Error al crear el aislamiento',
       confirmButtonColor: '#d33'
     });
-
   }
 }
+
 
 //____________________________________buscador inteligente____________________________________
 const BuscarAislamiento = document.getElementById('search-isolation');
@@ -463,21 +473,6 @@ async function init(page = 1, page_size = 10, fechaInicio = activeFechaInicio, f
   }
 }
 
-// Modal de filtro de fechas
-const filterModalEl = document.getElementById('filterDateModal');
-const filterModal = new bootstrap.Modal(filterModalEl);
-
-
-// Botón para aplicar filtro
-document.getElementById("btn-apply-date-filter").addEventListener("click", () => {
-  const fechaInicio = document.getElementById("fecha-inicio").value;
-  const fechaFin = document.getElementById("fecha-fin").value;
-
-  filtrarAislamientos(fechaInicio, fechaFin);
-
-  filterModal.hide();
-});
-  
 //_____________________para exportar archivos excel, CSV, pdf_______________________________________
 function convertToCSV(rows, columns) {
   const escapeCell = (val) => {
