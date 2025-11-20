@@ -1,5 +1,5 @@
-import { rescueService } from '../js/rescue.service.js';
-import { selectDataManager } from '../js/SelectDataManager.js';
+import { rescueService } from '../api/rescue.service.js';
+import { selectDataManager } from '../api/SelectDataManager.js';
 
 let modalInstance = null;
 let createModalInstance = null;
@@ -70,7 +70,7 @@ function createRescueRow(rescue) {
                 <div class="d-flex align-items-center">
                     <div class="ms-3">
                         <h6 class="mb-0 fw-bolder">${rescue.nombre || `${rescue.id_galpon}`}</h6>
-                        <span class="text-muted">ID: ${rescue.id_salvamento}</span>
+                        <span class="text-muted">Id Salvamento: ${rescue.id_salvamento}</span>
                     </div>
                 </div>
             </td>
@@ -78,11 +78,12 @@ function createRescueRow(rescue) {
             <td class="px-0">${rescue.raza || `${rescue.id_tipo_gallina}`}</td>
             <td class="px-0">${rescue.cantidad_gallinas} gallinas</td>
             <td class="px-0 text-end">
-                <button class="btn btn-sm btn-info btn-edit-rescue" data-rescue-id="${rescueId}">
-                    <i class="fa-regular fa-pen-to-square"></i>
+                <button class="btn btn-success btn-sm btn-edit-rescue" data-rescue-id="${rescueId}" aria-label="Editar">
+                    <i class="fa fa-pen me-0"></i>
                 </button>
-                <button class="btn btn-sm btn-danger btn-delete-rescue" data-rescue-id="${rescueId}">
-                    <i class="fa-regular fa-trash-can"></i>
+                
+                <button class="btn btn-secondary btn-sm btn-delete-rescue" data-rescue-id="${rescueId}">
+                    <i class="fa fa-trash me-0"></i>
                 </button>
             </td>
         </tr>
@@ -124,7 +125,7 @@ function populateChickenTypeSelect(selectElement, selectedId = null) {
 // --- LÓGICA DE MODAL MEJORADA ---
 
 async function openEditModal(rescueId) {
-    console.log('Abriendo modal de edición para rescate:', rescueId);
+    console.log('Abriendo modal de edición para salvamento:', rescueId);
     
     const modalElement = document.getElementById('editRescueModal');
     
@@ -172,8 +173,14 @@ async function openEditModal(rescueId) {
         modalInstance.show();
         
     } catch (error) {
-        console.error(`Error al obtener datos del rescate ${rescueId}:`, error);
-        alert('No se pudieron cargar los datos del rescate.');
+        console.error(`Error al obtener datos del salvamento ${rescueId}:`, error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudieron cargar los datos del salvamento.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+        });
     }
 }
 
@@ -225,7 +232,13 @@ async function handleUpdateSubmit(event) {
 
     // Validación básica
     if (!updatedData.id_galpon || !updatedData.id_tipo_gallina || !updatedData.cantidad_gallinas) {
-        alert('Por favor complete todos los campos obligatorios');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Por favor complete todos los campos obligatorios',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+        });
         return;
     }
 
@@ -233,10 +246,22 @@ async function handleUpdateSubmit(event) {
         await rescueService.updateRescue(rescueId, updatedData);
         if (modalInstance) modalInstance.hide();
         await loadRescuesWithPagination();
-        alert('Rescate actualizado exitosamente.');
+        Swal.fire({
+            icon: 'success',
+            title: 'Éxito',
+            text: 'Salvamento actualizado exitosamente.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+        });
     } catch (error) {
-        console.error(`Error al actualizar el rescate ${rescueId}:`, error);
-        alert('No se pudo actualizar el rescate: ' + error.message);
+        console.error(`Error al actualizar el salvamento ${rescueId}:`, error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo actualizar el salvamento: ' + error.message,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+        });
     }
 }
 
@@ -257,14 +282,37 @@ async function handleTableClick(event) {
 }
 
 async function handleDeleteRescue(rescueId) {
-    if (confirm('¿Estás seguro de que deseas eliminar este rescate?')) {
+    const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¿Estás seguro de que deseas eliminar este salvamento?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#198754',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
         try {
             await rescueService.deleteRescue(rescueId);
-            alert('Rescate eliminado exitosamente.');
+            Swal.fire({
+                icon: 'success',
+                title: 'Eliminado',
+                text: 'Salvamento eliminado exitosamente.',
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#198754'
+            });
             await loadRescuesWithPagination();
         } catch (error) {
-            console.error(`Error al eliminar el rescate ${rescueId}:`, error);
-            alert('No se pudo eliminar el rescate.');
+            console.error(`Error al eliminar el salvamento ${rescueId}:`, error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo eliminar el salvamento.',
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#198754'
+            });
         }
     }
 }
@@ -281,7 +329,13 @@ async function handleCreateSubmit(event) {
 
     // Validación básica
     if (!newRescueData.id_galpon || !newRescueData.id_tipo_gallina || !newRescueData.cantidad_gallinas) {
-        alert('Por favor complete todos los campos obligatorios');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos incompletos',
+            text: 'Por favor complete todos los campos obligatorios',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+        });
         return;
     }
 
@@ -293,11 +347,23 @@ async function handleCreateSubmit(event) {
         }
         
         document.getElementById('create-rescue-form').reset();
-        alert('Rescate creado exitosamente.');
+        Swal.fire({
+            icon: 'success',
+            title: 'Éxito',
+            text: 'Salvamento creado exitosamente.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+        });
         await loadRescuesWithPagination();
     } catch (error) {
-        console.error('Error al crear el rescate:', error);
-        alert('No se pudo crear el rescate: ' + error.message);
+        console.error('Error al crear el salvamento:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo crear el salvamento: ' + error.message,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+        });
     }
 }
 
@@ -336,7 +402,13 @@ function setupPaginationEventListeners() {
             
             // Validar fechas
             if (fechaInicio && fechaFin && fechaInicio > fechaFin) {
-                alert('La fecha de inicio no puede ser mayor que la fecha de fin');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Fechas inválidas',
+                    text: 'La fecha de inicio no puede ser mayor que la fecha de fin',
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#198754'
+                });
                 return;
             }
             
@@ -369,7 +441,7 @@ function renderPagination() {
     const prevLi = document.createElement('li');
     prevLi.className = `page-item ${currentPage === 1 ? 'disabled' : ''}`;
     prevLi.innerHTML = `
-        <a class="page-link" href="#" data-page="${currentPage - 1}">
+        <a class="page-link text-success" href="#" data-page="${currentPage - 1}">
             <i class="fas fa-chevron-left"></i>
         </a>
     `;
@@ -383,7 +455,7 @@ function renderPagination() {
         const pageLi = document.createElement('li');
         pageLi.className = `page-item ${i === currentPage ? 'active' : ''}`;
         pageLi.innerHTML = `
-            <a class="page-link" href="#" data-page="${i}">${i}</a>
+            <a class="page-link ${i === currentPage ? 'bg-success border-success' : 'text-success'}" href="#" data-page="${i}">${i}</a>
         `;
         paginationElement.appendChild(pageLi);
     }
@@ -392,7 +464,7 @@ function renderPagination() {
     const nextLi = document.createElement('li');
     nextLi.className = `page-item ${currentPage === totalPages ? 'disabled' : ''}`;
     nextLi.innerHTML = `
-        <a class="page-link" href="#" data-page="${currentPage + 1}">
+        <a class="page-link text-success" href="#" data-page="${currentPage + 1}">
             <i class="fas fa-chevron-right"></i>
         </a>
     `;
@@ -415,7 +487,7 @@ async function loadRescuesWithPagination() {
     const tableBody = document.getElementById('rescue-table-body');
     if (!tableBody) return;
 
-    tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Cargando rescates...</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="5" class="text-center">Cargando salvamentos...</td></tr>';
 
     try {
         let response;
@@ -438,7 +510,7 @@ async function loadRescuesWithPagination() {
             // Actualizar información de paginación
             updatePaginationInfo();
         } else {
-            tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No se encontraron rescates.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No se encontraron salvamentos.</td></tr>';
             totalPages = 1;
             totalRescues = 0;
             updatePaginationInfo();
@@ -447,7 +519,7 @@ async function loadRescuesWithPagination() {
         renderPagination();
 
     } catch (error) {
-        console.error('Error al cargar rescates con paginación:', error);
+        console.error('Error al cargar salvamentos con paginación:', error);
         tableBody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error al cargar los datos.</td></tr>';
     }
 }
@@ -514,7 +586,13 @@ async function init() {
             await selectDataManager.loadData();
         } catch (error) {
             console.error('Error cargando datos para selects:', error);
-            alert('Error cargando datos de galpones y tipos de gallina');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error cargando datos',
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#198754'
+            });
         }
     }
 
