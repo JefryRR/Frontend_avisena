@@ -311,6 +311,9 @@ async function handleTableClick(event) {
 }
 
 // --- MANEJADORES DE EVENTOS ---
+const exampleModalEl = document.getElementById('exampleModal');
+const exampleModalInstance = bootstrap.Modal.getOrCreateInstance(exampleModalEl);
+
 
 async function handleUpdateSubmit(event) {
   event.preventDefault();
@@ -350,16 +353,30 @@ async function handleCreateSubmit(event) {
 
   try {
     await isolationService.createIsolation(newIsolationData);
-    if (createModalInstance) createModalInstance.hide();
-    document.getElementById('create-isolation-form').reset();
-    Swal.fire({
-      icon: 'success',
-      title: '¡Guardado!',
-      text: 'Aislamiento creado correctamente.',
-      confirmButtonColor: '#28a745'
+
+    // Cerrar modal ANTES, pero sin mostrar SweetAlert todavía
+    exampleModalInstance.hide();
+
+    // Esperar a que Bootstrap termine de cerrar el modal
+    exampleModalEl.addEventListener('hidden.bs.modal', function handler() {
+      // remover el listener (muy importante para evitar ejecuciones duplicadas)
+      exampleModalEl.removeEventListener('hidden.bs.modal', handler);
+
+      // resetear formulario
+      document.getElementById('create-isolation-form').reset();
+
+      // mostrar alerta
+      Swal.fire({
+        icon: 'success',
+        title: '¡Guardado!',
+        text: 'Aislamiento creado correctamente.',
+        confirmButtonColor: '#28a745'
+      });
+
+      // recargar datos
+      init();
     });
 
-    init();
   } catch (error) {
     Swal.fire({
       icon: 'error',
@@ -367,9 +384,9 @@ async function handleCreateSubmit(event) {
       text: 'Error al crear el aislamiento',
       confirmButtonColor: '#d33'
     });
-
   }
 }
+
 
 //____________________________________buscador inteligente____________________________________
 const BuscarAislamiento = document.getElementById('search-isolation');
