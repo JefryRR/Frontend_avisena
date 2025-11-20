@@ -3,46 +3,54 @@
   <div class="col-12">
     <div class="card">
       <div class="card-body">
-        <div class="d-flex align-items-center">
-          <div class="col-2">
-            <h4 class="card-title">Aislamientos</h4>
-          </div>
-          <div class="mt-3 ms-auto page-utilities">
-            <div class="row align-items-center">
-              <div class="col-md-3">
-                <div class="btn-group w-100">
-                  <button class="btn app-btn-secondary dropdown-toggle" type="button" id="export-btn"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fa fa-file-export me-1"></i> Exportar
-                  </button>
-                  <ul class="dropdown-menu" aria-labelledby="export-btn">
-                    <li><a class="dropdown-item export-format" href="#" data-format="csv">Exportar CSV</a></li>
-                    <li><a class="dropdown-item export-format" href="#" data-format="excel">Exportar Excel</a></li>
-                    <li><a class="dropdown-item export-format" href="#" data-format="pdf">Exportar Pdf</a></li>
-                  </ul>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="input-group">
-                  <span class="input-group-text"><i class="fas fa-search"></i></span>
-                  <input type="text" id="search-isolation" class="form-control" placeholder="Buscar aislamiento">
-                </div>
-              </div>
+         <div class="d-flex flex-column gap-2">
 
-              <div class="col-md-6">
-                <div class="d-flex gap-3 justify-content-end">
-                  <button class="btn btn-danger" id="btn_clear_filters" style="background-color: rgb(221, 12, 12);">
-                    <i class="fas fa-times-circle me-1"></i>Limpiar
-                  </button>
-                  <button class="btn btn-primary" id="btn_open_date_filter">
-                    <i class="fas fa-filter me-1"></i>Filtrar
-                  </button>
-                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                    <i class="fas fa-plus me-1"></i>Agregar
-                  </button>
-                </div>
-              </div>
+          <div class="row d-flex align-items-center">
+            <div class="col-9">
+              <h4 class="card-title m-0">Aislamientos</h4>
             </div>
+            <div class="col-3 align-items-end">
+              <div class="btn-group col-mb-8">
+              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="export-btn"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fa fa-file-export me-1"></i> Exportar
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="export-btn">
+                <li><a class="dropdown-item export-format" href="#" data-format="csv">Exportar CSV</a></li>
+                <li><a class="dropdown-item export-format" href="#" data-format="excel">Exportar Excel</a></li>
+                <li><a class="dropdown-item export-format" href="#" data-format="pdf">Exportar PDF</a></li>
+              </ul>
+            </div>
+
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
+              <i class="fas fa-plus me-1"></i> Agregar
+            </button>
+            </div>
+          </div>
+
+          <!-- Segunda línea: Buscador, Fechas, Filtrar, Limpiar -->
+          <div class="d-flex align-items-end gap-2">
+
+            <div class="input-group" style="width: 220px;">
+              <span class="input-group-text"><i class="fas fa-search"></i></span>
+              <input type="text" id="search-isolation" class="form-control" placeholder="Buscar aislamiento">
+            </div>
+            <div class="input-group" style="width: 260px;">
+                <span class="input-group-text"><i>Fecha inicio</i></span>
+                <input type="date" id="fecha-inicio" class="form-control">
+              </div>
+            <div class="input-group" style="width: 260px;">
+              <span class="input-group-text"><i>Fecha fin</i></span>
+              <input type="date" id="fecha-fin" class="form-control">
+            </div>
+            <button class="btn btn-success" id="btn-apply-date-filter">
+              <i class="fas fa-filter me-1"></i> Filtrar
+            </button>
+
+            <button class="btn btn-secondary" id="btn_clear_filters">
+              <i class="fas fa-times-circle me-1"></i> Limpiar
+            </button>
+
           </div>
 
         </div>
