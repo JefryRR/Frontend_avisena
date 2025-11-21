@@ -4,13 +4,14 @@ import { selectDataManager } from '../api/SelectDataManager.js';
 let modalInstance = null;
 let createModalInstance = null;
 
-// --- VARIABLES DE PAGINACIÓN ---
+// --- VARIABLES DE PAGINACIÓN Y BÚSQUEDA ---
 let currentPage = 1;
 let pageSize = 10;
 let totalPages = 1;
 let totalRescues = 0;
 let fechaInicio = null;
 let fechaFin = null;
+let searchTerm = '';
 
 // --- FUNCIONES PARA CERRAR MODALES CORRECTAMENTE ---
 
@@ -120,6 +121,311 @@ function populateChickenTypeSelect(selectElement, selectedId = null) {
         }
         selectElement.appendChild(option);
     });
+}
+
+// --- BÚSQUEDA INTELIGENTE ---
+
+function setupSearchListener() {
+    const searchInput = document.getElementById('buscador-salvamentos');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            searchTerm = e.target.value.toLowerCase().trim();
+            currentPage = 1;
+            loadRescuesWithPagination();
+        });
+    }
+}
+
+function filterRescues(rescues) {
+    if (!searchTerm) return rescues;
+    
+    return rescues.filter(rescue => {
+        const galpon = (rescue.nombre || `Galpón ${rescue.id_galpon}`).toLowerCase();
+        const tipoGallina = (rescue.raza || `Tipo ${rescue.id_tipo_gallina}`).toLowerCase();
+        const cantidad = rescue.cantidad_gallinas.toString();
+        const fecha = rescue.fecha.toLowerCase();
+        const id = rescue.id_salvamento.toString();
+        
+        return galpon.includes(searchTerm) ||
+               tipoGallina.includes(searchTerm) ||
+               cantidad.includes(searchTerm) ||
+               fecha.includes(searchTerm) ||
+               id.includes(searchTerm);
+    });
+}
+
+// --- FUNCIONES DE EXPORTACIÓN MEJORADAS ---
+
+function setupExportButtons() {
+    // Exportar a Excel
+    document.getElementById('export-excel')?.addEventListener('click', exportToExcel);
+    // Exportar a PDF
+    document.getElementById('export-pdf')?.addEventListener('click', exportToPDF);
+    // Exportar a CSV
+    document.getElementById('export-csv')?.addEventListener('click', exportToCSV);
+    // Imprimir
+    document.getElementById('export-print')?.addEventListener('click', exportToPrint);
+}
+
+async function getAllRescuesForExport() {
+    try {
+        let allRescues = [];
+        let currentPage = 1;
+        let hasMoreData = true;
+        
+        Swal.fire({
+            title: 'Obteniendo datos...',
+            text: 'Recopilando información para exportar',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Obtener datos paginados hasta que no haya más
+        while (hasMoreData) {
+            const response = await fetchWithoutDates(currentPage, 100); // 100 por página
+            if (response && response.rescues && response.rescues.length > 0) {
+                allRescues = allRescues.concat(response.rescues);
+                currentPage++;
+                
+                // Actualizar progreso
+                Swal.update({
+                    text: `Recopilando datos... (${allRescues.length} registros)`
+                });
+                
+                // Verificar si hay más páginas
+                if (currentPage > response.total_pages) {
+                    hasMoreData = false;
+                }
+                
+                // Pequeña pausa para no saturar el servidor
+                await new Promise(resolve => setTimeout(resolve, 100));
+            } else {
+                hasMoreData = false;
+            }
+        }
+        
+        Swal.close();
+        return allRescues;
+        
+    } catch (error) {
+        Swal.close();
+        throw error;
+    }
+}
+
+async function exportToExcel() {
+    try {
+        const data = await getAllRescuesForExport();
+        
+        if (data.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Sin datos',
+                text: 'No hay datos para exportar',
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Generando Excel...',
+            text: 'Por favor espere',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Crear workbook
+        const XLSX = await import('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm');
+        const wb = XLSX.utils.book_new();
+        
+        // Preparar datos
+        const excelData = data.map(rescue => ({
+            'ID Salvamento': rescue.id_salvamento,
+            'Galpón': rescue.nombre || `Galpón ${rescue.id_galpon}`,
+            'Fecha': rescue.fecha,
+            'Tipo Gallina': rescue.raza || `Tipo ${rescue.id_tipo_gallina}`,
+            'Cantidad Gallinas': rescue.cantidad_gallinas
+        }));
+        
+        const ws = XLSX.utils.json_to_sheet(excelData);
+        XLSX.utils.book_append_sheet(wb, ws, 'Salvamentos');
+        XLSX.writeFile(wb, `salvamentos_${new Date().toISOString().split('T')[0]}.xlsx`);
+        
+        Swal.close();
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'Éxito',
+            text: `Excel exportado con ${data.length} registros`,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+        });
+        
+    } catch (error) {
+        console.error('Error exportando a Excel:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo exportar a Excel: ' + error.message,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+        });
+    }
+}
+
+async function exportToPDF() {
+    try {
+        const data = await getAllRescuesForExport();
+        
+        if (data.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Sin datos',
+                text: 'No hay datos para exportar',
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Generando PDF...',
+            text: 'Por favor espere',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Usar jsPDF
+        const { jsPDF } = await import('https://cdn.jsdelivr.net/npm/jspdf@2.5.1/+esm');
+        const pdf = new jsPDF();
+        
+        // Título
+        pdf.setFontSize(16);
+        pdf.text('Reporte de Salvamentos', 20, 20);
+        pdf.setFontSize(10);
+        pdf.text(`Generado: ${new Date().toLocaleDateString()}`, 20, 30);
+        pdf.text(`Total de registros: ${data.length}`, 20, 40);
+        
+        // Cabeceras de tabla
+        const headers = [['ID', 'Galpón', 'Fecha', 'Tipo Gallina', 'Cantidad']];
+        const tableData = data.map(rescue => [
+            rescue.id_salvamento,
+            rescue.nombre || `Galpón ${rescue.id_galpon}`,
+            rescue.fecha,
+            rescue.raza || `Tipo ${rescue.id_tipo_gallina}`,
+            rescue.cantidad_gallinas.toString()
+        ]);
+        
+        pdf.autoTable({
+            head: headers,
+            body: tableData,
+            startY: 50,
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [22, 135, 84] }
+        });
+        
+        pdf.save(`salvamentos_${new Date().toISOString().split('T')[0]}.pdf`);
+        Swal.close();
+        
+    } catch (error) {
+        console.error('Error exportando a PDF:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo exportar a PDF: ' + error.message,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+        });
+    }
+}
+
+async function exportToCSV() {
+    try {
+        const data = await getAllRescuesForExport();
+        
+        if (data.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Sin datos',
+                text: 'No hay datos para exportar',
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#198754'
+            });
+            return;
+        }
+        
+        const headers = ['ID Salvamento,Galpón,Fecha,Tipo Gallina,Cantidad Gallinas'];
+        const csvData = data.map(rescue => 
+            `"${rescue.id_salvamento}","${rescue.nombre || `Galpón ${rescue.id_galpon}`}","${rescue.fecha}","${rescue.raza || `Tipo ${rescue.id_tipo_gallina}`}","${rescue.cantidad_gallinas}"`
+        );
+        
+        const csvContent = headers.concat(csvData).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', `salvamentos_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'Éxito',
+            text: `CSV exportado con ${data.length} registros`,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+        });
+        
+    } catch (error) {
+        console.error('Error exportando a CSV:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'No se pudo exportar a CSV: ' + error.message,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#198754'
+        });
+    }
+}
+
+function exportToPrint() {
+    const table = document.querySelector('.table');
+    const printWindow = window.open('', '_blank');
+    
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Reporte de Salvamentos</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #198754; color: white; }
+                    h1 { color: #198754; }
+                    @media print { body { margin: 0; } }
+                </style>
+            </head>
+            <body>
+                <h1>Reporte de Salvamentos</h1>
+                <p>Generado: ${new Date().toLocaleDateString()}</p>
+                ${table.outerHTML}
+            </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    printWindow.print();
 }
 
 // --- LÓGICA DE MODAL MEJORADA ---
@@ -503,11 +809,23 @@ async function loadRescuesWithPagination() {
         console.log('Respuesta de paginación:', response);
 
         if (response && response.rescues && response.rescues.length > 0) {
-            tableBody.innerHTML = response.rescues.map(createRescueRow).join('');
-            totalPages = response.total_pages;
-            totalRescues = response.total_rescues;
+            let rescuesToShow = response.rescues;
             
-            // Actualizar información de paginación
+            // Aplicar filtro de búsqueda si existe
+            if (searchTerm) {
+                rescuesToShow = filterRescues(response.rescues);
+            }
+            
+            if (rescuesToShow.length > 0) {
+                tableBody.innerHTML = rescuesToShow.map(createRescueRow).join('');
+                totalPages = response.total_pages;
+                totalRescues = response.total_rescues;
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No se encontraron salvamentos con ese criterio.</td></tr>';
+                totalPages = 1;
+                totalRescues = 0;
+            }
+            
             updatePaginationInfo();
         } else {
             tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No se encontraron salvamentos.</td></tr>';
@@ -528,7 +846,7 @@ async function fetchWithDates(page, size) {
     const endpoint = `/rescue/all-pag-by-date?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}&page=${page}&page_size=${size}`;
     const token = localStorage.getItem('access_token');
     
-    const response = await fetch(`https://proyecto-sena-oatr.onrender.com${endpoint}`, {
+    const response = await fetch(`https://avisena-yzq3.onrender.com${endpoint}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -546,7 +864,7 @@ async function fetchWithoutDates(page, size) {
     const endpoint = `/rescue/all-pag?page=${page}&page_size=${size}`;
     const token = localStorage.getItem('access_token');
     
-    const response = await fetch(`https://proyecto-sena-oatr.onrender.com${endpoint}`, {
+    const response = await fetch(`https://avisena-yzq3.onrender.com${endpoint}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -598,6 +916,12 @@ async function init() {
 
     // Configurar event listeners de paginación
     setupPaginationEventListeners();
+
+    // Configurar buscador inteligente
+    setupSearchListener();
+
+    // Configurar botones de exportación
+    setupExportButtons();
 
     // Cargar datos con paginación
     await loadRescuesWithPagination();
