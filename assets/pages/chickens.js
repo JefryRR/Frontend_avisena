@@ -16,19 +16,12 @@ let filteredChickens = [];
 function createChickenRow(chicken) {
     const chickenId = chicken.id_ingreso;
 
-    const fecha = new Date(chicken.fecha);
+    const idRol = JSON.parse(localStorage.getItem('user'))?.id_rol;
     const fechaFormateada = chicken.fecha.split('-').reverse().join('/');
-    return `
+
+    const tabla = `
         <tr>
-            <td class="px-0">
-                <div class="d-flex align-items-center">
-                    <img src="./assets/images/profiles/chicken.jpg" class="rounded-circle" width="40" alt="flexy" />
-                    <div class="ms-3">
-                        <h6 class="mb-0 fw-bolder">${chicken.nombre_galpon}</h6>
-                        <span class="text-muted">ID Registro: ${chicken.id_ingreso}</span>
-                    </div>
-                </div>
-            </td>
+            <td class="px-0">${chicken.nombre_galpon}</td>
             <td class="px-0">${fechaFormateada}</td>
             <td class="px-0">${chicken.raza}</td>
             <td class="px-0">${chicken.cantidad_gallinas} gallinas</td>
@@ -37,13 +30,17 @@ function createChickenRow(chicken) {
                     <button class="btn btn-sm btn-success btn-edit-chicken" aria-label="Editar" title="Editar" data-chicken-id="${chickenId}">
                         <i class="fa fa-pen me-0"></i>
                     </button>
-                    <button class="btn btn-sm btn-secondary btn-delete-chicken" aria-label="Eliminar" title="Eliminar" data-chicken-id="${chickenId}">
-                        <i class="fa fa-trash me-0"></i>
-                    </button>
+                    ${idRol === 1 || idRol === 2 ? `
+                        <button class="btn btn-sm btn-secondary btn-delete-chicken" aria-label="Eliminar" title="Eliminar" data-chicken-id="${chickenId}">
+                            <i class="fa fa-trash me-0"></i>
+                        </button>
+                    ` : ''}
                 </div>
             </td>
         </tr>
     `;
+
+    return tabla;
 }
 
 // FUNCIONES DE CARGA DE SELECTS

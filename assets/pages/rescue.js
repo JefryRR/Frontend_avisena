@@ -1,5 +1,5 @@
-import { rescueService } from '../api/rescue.service.js';
-import { selectDataManager } from '../api/SelectDataManager.js';
+import { rescueService } from '../js/rescue.service.js';
+import { selectDataManager } from '../js/SelectDataManager.js';
 
 let modalInstance = null;
 let createModalInstance = null;
@@ -65,16 +65,11 @@ function closeAllModals() {
 function createRescueRow(rescue) {
     const rescueId = rescue.id_salvamento;
 
-    return `
+    const idRol = JSON.parse(localStorage.getItem('user'))?.id_rol;
+
+    const tabla = `
         <tr>
-            <td class="px-0">
-                <div class="d-flex align-items-center">
-                    <div class="ms-3">
-                        <h6 class="mb-0 fw-bolder">${rescue.nombre || `${rescue.id_galpon}`}</h6>
-                        <span class="text-muted">Id Salvamento: ${rescue.id_salvamento}</span>
-                    </div>
-                </div>
-            </td>
+            <td class="px-0">${rescue.nombre || `${rescue.id_galpon}`}</td>
             <td class="px-0">${rescue.fecha}</td>
             <td class="px-0">${rescue.raza || `${rescue.id_tipo_gallina}`}</td>
             <td class="px-0">${rescue.cantidad_gallinas} gallinas</td>
@@ -82,13 +77,16 @@ function createRescueRow(rescue) {
                 <button class="btn btn-success btn-sm btn-edit-rescue" data-rescue-id="${rescueId}" aria-label="Editar">
                     <i class="fa fa-pen me-0"></i>
                 </button>
-                
-                <button class="btn btn-secondary btn-sm btn-delete-rescue" data-rescue-id="${rescueId}">
-                    <i class="fa fa-trash me-0"></i>
-                </button>
+                ${idRol === 1 || idRol === 2 ? `
+                    <button class="btn btn-secondary btn-sm btn-delete-rescue" data-rescue-id="${rescueId}">
+                        <i class="fa fa-trash me-0"></i>
+                    </button>
+                ` : ''}
             </td>
         </tr>
     `;
+
+    return tabla;
 }
 
 // --- FUNCIONES PARA CARGAR SELECTS ---
@@ -846,7 +844,7 @@ async function fetchWithDates(page, size) {
     const endpoint = `/rescue/all-pag-by-date?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}&page=${page}&page_size=${size}`;
     const token = localStorage.getItem('access_token');
     
-    const response = await fetch(`https://avisena-yzq3.onrender.com${endpoint}`, {
+    const response = await fetch(`https://proyecto-sena-oatr.onrender.com${endpoint}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -864,7 +862,7 @@ async function fetchWithoutDates(page, size) {
     const endpoint = `/rescue/all-pag?page=${page}&page_size=${size}`;
     const token = localStorage.getItem('access_token');
     
-    const response = await fetch(`https://avisena-yzq3.onrender.com${endpoint}`, {
+    const response = await fetch(`https://proyecto-sena-oatr.onrender.com${endpoint}`, {
         headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

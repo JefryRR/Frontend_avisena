@@ -17,14 +17,7 @@ function createIsolationRow(isolation) {
   });
   return `
     <tr>
-      <td class="px-0">
-        <div class="d-flex align-items-center">
-          <img src="./assets/images/profiles/isolation.jpg" class="rounded-circle" width="40" alt="flexy" />
-          <div class="ms-3">
-            <h6 class="mb-0 fw-bolder">${isolation.id_incidente_gallina}</h6>
-          </div>
-        </div>
-      </td>
+      <td class="px-0">${isolation.id_incidente_gallina}</td>
       <td class="px-0">${fechaFormateada}</td>
       <td class="px-0">${isolation.nombre}</td>
       <td class="text-end justify-content-end gap-2">
