@@ -1,5 +1,4 @@
-import { shedsService } from './sheeds.service.js';
-import { typeChickensService } from './type_chickens.service.js';
+import { rescueService } from './rescue.service.js';  
 
 class SelectDataManager {
     constructor() {
@@ -10,10 +9,9 @@ class SelectDataManager {
 
     async loadData() {
         try {
-            // Cargar datos en paralelo usando los servicios específicos
             const [shedsData, chickenTypesData] = await Promise.all([
-                shedsService.getSheds(),
-                typeChickensService.getChickenTypes()
+                rescueService.getSheds(),           
+                rescueService.getChickenTypes()     
             ]);
 
             this.sheds = shedsData || [];
@@ -30,7 +28,7 @@ class SelectDataManager {
             this.sheds = [];
             this.chickenTypes = [];
             this.isLoaded = false;
-            throw error; // Propagar el error para manejarlo arriba
+            throw error;
         }
     }
 
@@ -38,7 +36,7 @@ class SelectDataManager {
         return this.sheds.map(shed => ({
             value: shed.id_galpon,
             text: `${shed.nombre}`,
-            data: shed // Guardar datos completos por si se necesitan
+            data: shed
         }));
     }
 
@@ -58,7 +56,6 @@ class SelectDataManager {
         return this.chickenTypes.find(type => type.id_tipo_gallinas === id);
     }
 
-    // Limpiar cache (útil para cuando se actualizan datos)
     clearCache() {
         this.sheds = [];
         this.chickenTypes = [];

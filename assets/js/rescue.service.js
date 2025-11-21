@@ -55,5 +55,21 @@ export const rescueService = {
         return request(`/rescue/by-id-delete/${rescueId}`, {
             method: 'DELETE',
         });
+    },
+
+    getChickenTypes: () => {
+        const endpoint = `/type_chicken/all-type-chickens`;  
+        return request(endpoint);
+    },
+
+    getSheds: () => {
+        const endpoint = `/sheds/all`;
+        return request(endpoint);
+    },
+
+    clearCache() {
+        this.sheds = [];
+        this.chickenTypes = [];
+        this.isLoaded = false;
     }
 };
